@@ -5,7 +5,7 @@ import altair as alt
 import pydeck as pdk
 #import time
 from nltk.tokenize import sent_tokenize
-import re
+#import re
 from newspaper import Article
 from selenium import webdriver
 #from functions import pred_percent, pred_sent, pred_array
@@ -72,8 +72,8 @@ text = data.iloc[0,3]
 #pred_percent(text)
 
 text = text.replace("\n"," ")
-text = re.sub(r"[^A-Za-z0-9^,.'-]", " ", text)
-text = re.sub(' +',' ', text)
+#text = re.sub(r"[^A-Za-z0-9^,.'-]", " ", text)
+#text = re.sub(' +',' ', text)
 for i, sent in enumerate (sent_tokenize(text)):
     st.write(sent)
     #st.write(pred_sent(sent))
