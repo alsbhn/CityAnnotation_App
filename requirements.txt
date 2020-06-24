@@ -4,5 +4,4 @@ numpy
 altair
 pydeck
 nltk
-newspaper
 selenium
