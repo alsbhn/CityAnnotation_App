@@ -3,7 +3,7 @@ pandas
 numpy
 altair
 pydeck
-nltk.tokenize
+nltk
 re
 newspaper
 selenium
