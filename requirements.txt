@@ -1,1 +1,10 @@
 streamlit
+pandas
+numpy
+altair
+pydeck
+time
+nltk.tokenize
+re
+newspaper
+selenium
