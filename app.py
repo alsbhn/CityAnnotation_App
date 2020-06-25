@@ -49,12 +49,12 @@ st.subheader(data.iloc[0,4])
 #img = list(a.images)[-2]
 #st.image(img,width=200)
 
-#DRIVER = 'chromedriver.exe'
-#driver = webdriver.Chrome(DRIVER)
-#driver.get(data.iloc[0,2])
-#screenshot = driver.save_screenshot('my_screenshot.png')
-#driver.quit()
-#st.image('my_screenshot.png',width=700)
+DRIVER = 'chromedriver.exe'
+driver = webdriver.Chrome(DRIVER)
+driver.get(data.iloc[0,2])
+screenshot = driver.save_screenshot('my_screenshot.png')
+driver.quit()
+st.image('my_screenshot.png',width=700)
 
 st.subheader("Data")
 data.iloc[0,2]
