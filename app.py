@@ -7,8 +7,18 @@ import pydeck as pdk
 from nltk.tokenize import sent_tokenize
 #import re
 #from newspaper import Article
-from selenium import webdriver
+
 #from functions import pred_percent, pred_sent, pred_array
+
+# chromedriver
+from selenium import webdriver
+import os
+chrome_options = webdriver.ChromeOptions()
+chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--no-sandbox")
+driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
 
 st.title("Annotation App")
@@ -49,8 +59,8 @@ st.subheader(data.iloc[0,4])
 #img = list(a.images)[-2]
 #st.image(img,width=200)
 
-DRIVER = 'chromedriver.exe'
-driver = webdriver.Chrome(DRIVER)
+#DRIVER = 'chromedriver.exe'
+#driver = webdriver.Chrome(DRIVER)
 driver.get(data.iloc[0,2])
 screenshot = driver.save_screenshot('my_screenshot.png')
 driver.quit()
