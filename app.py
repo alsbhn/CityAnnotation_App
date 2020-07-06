@@ -8,7 +8,7 @@ from nltk.tokenize import sent_tokenize
 import re
 #from newspaper import Article
 from selenium import webdriver
-from functions import pred_percent, pred_sent, pred_array
+#from functions import pred_percent, pred_sent, pred_array
 
 DATE_TIME = "date/time"
 DATA_URL = (
