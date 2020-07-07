@@ -6,3 +6,4 @@ pydeck
 nltk
 selenium
 sqlalchemy
+psycopg2

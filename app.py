@@ -79,6 +79,7 @@ if st.sidebar.button('Update','doc_update'):
 ########### db
 import os
 import csv
+import psycopg2
 
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData, Table
