@@ -106,8 +106,8 @@ if st.button('db','db'):
     table = db.execute("SELECT * FROM news WHERE month = :month", {"month": 6}).fetchall()
     db.commit()
     st.write(len(table))
-    #for item in table:
-     #   st.write(item)
+    for item in table:
+        st.write(item)
     #res = pd.read_sql(table,db.bind)
     #res
 ##########
