@@ -5,3 +5,4 @@ altair
 pydeck
 nltk
 selenium
+sqlalchemy
