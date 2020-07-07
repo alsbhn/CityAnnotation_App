@@ -82,7 +82,7 @@ import csv
 import psycopg2
 
 from sqlalchemy import create_engine
-from sqlalchemy import MetaData, Table
+from sqlalchemy import MetaData, Table, Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 engine = create_engine("postgres://eaaooazfxtlhjc:507683fe889e638e719881b09e9d2ef78833175b1b2bc9a72ecb439b207ad415@ec2-34-225-162-157.compute-1.amazonaws.com:5432/d7ub5mfhuoe7cp", echo = True) # database engine object from SQLAlchemy that manages connections to the database
