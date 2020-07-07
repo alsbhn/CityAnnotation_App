@@ -75,6 +75,39 @@ if st.sidebar.button('Update','doc_update'):
     data.doc[x] = doc
     update_data (data,df,x)
 
+
+########### db
+import os
+import csv
+
+from sqlalchemy import create_engine
+from sqlalchemy import MetaData, Table
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+engine = create_engine("sqlite:///C:\\Users\\alisobhani\\Desktop\\Media Cloud City names crawler\\Annotation_streamlit\\CityAnnotation_App\\data.db") # database engine object from SQLAlchemy that manages connections to the database
+                                                    # DATABASE_URL is an environment variable that indicates where the database lives
+#connection = engine.connect()
+
+st.write(engine.table_names())
+metadata=MetaData()
+c = Table('news',metadata,autoload=True,autoload_with=engine)
+st.write(repr(c))
+db = scoped_session(sessionmaker(bind=engine))
+
+if st.button('db','db'):
+    db.execute("INSERT INTO news (city, month) VALUES ('new york',6)")
+    #db.execute("SELECT * FROM news city")
+    db.commit()
+    table = db.execute("SELECT * FROM news WHERE month = :month", {"month": 6}).fetchall()
+    db.commit()
+    st.write(len(table))
+    #for item in table:
+     #   st.write(item)
+    #res = pd.read_sql(table,db.bind)
+    #res
+##########
+
+
 #### NEWS DATA ####
 # Title
 st.subheader(data.title[x])
