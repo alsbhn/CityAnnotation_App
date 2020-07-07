@@ -84,7 +84,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import MetaData, Table
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine = create_engine("sqlite:///C:\\Users\\alisobhani\\Desktop\\Media Cloud City names crawler\\Annotation_streamlit\\CityAnnotation_App\\data.db") # database engine object from SQLAlchemy that manages connections to the database
+engine = create_engine("sqlite:///data.db") # database engine object from SQLAlchemy that manages connections to the database
                                                     # DATABASE_URL is an environment variable that indicates where the database lives
 #connection = engine.connect()
 
