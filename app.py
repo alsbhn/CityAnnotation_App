@@ -69,7 +69,7 @@ x=0
 
 def load_data(x):
     #data = db.execute("SELECT * FROM news WHERE ID = :ID", {"ID": x}).fetchall()
-    data = db.execute("SELECT * FROM news WHERE ID = ?;", x).fetchall()  
+    data = db.execute("SELECT * FROM news WHERE ID = {}".format(x)).fetchall()  
     data = data [0]
     (ID,city,month,url,text,title,summary,keywords,sents,percent,doc)=data
     data = {'ID':ID,'city':city,'month':month,'url':url,'text':text,'title':title,'summary':summary,'keywords':keywords,'sents':sents,'percent':percent,'doc':doc}
