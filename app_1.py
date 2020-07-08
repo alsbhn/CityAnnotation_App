@@ -1,0 +1,174 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import altair as alt
+import pydeck as pdk
+import time
+from nltk.tokenize import sent_tokenize
+import re
+#from newspaper import Article
+from selenium import webdriver
+#from functions import pred_percent, pred_sent, pred_array
+
+DATE_TIME = "date/time"
+DATA_URL = (
+    "http://s3-us-west-2.amazonaws.com/streamlit-demo-data/uber-raw-data-sep14.csv.gz"
+)
+
+st.title("Annotation App")
+st.markdown(
+"""
+Cities, Urabnization and Human Needs Satisfaction | Ali Sobhani
+""")
+tags = ['Physiology-sent-pos','Physiology-sent-neg','Physiology-trnd-pos','Physiology-trnd-neg',
+ 'Space-sent-pos','Space-sent-neg','Space-trnd-pos','Space-trnd-neg',
+ 'Mobility-sent-pos','Mobility-sent-neg','Mobility-trnd-pos','Mobility-trnd-neg',
+ 'Health-sent-pos','Health-sent-neg','Health-trnd-pos','Health-trnd-neg',
+ 'Saf&Sec-sent-pos','Saf&Sec-sent-neg','Saf&Sec-trnd-pos','Saf&Sec-trnd-neg',
+ 'Intimacy-sent-pos','Intimacy-sent-neg','Intimacy-trnd-pos','Intimacy-trnd-neg',
+ 'Aesthetics-sent-pos','Aesthetics-sent-neg','Aesthetics-trnd-pos','Aesthetics-trnd-neg',
+ 'Knowledge-sent-pos','Knowledge-sent-neg','Knowledge-trnd-pos','Knowledge-trnd-neg',
+ 'Innovation-sent-pos','Innovation-sent-neg','Innovation-trnd-pos','Innovation-trnd-neg',
+ 'Community-sent-pos','Community-sent-neg','Community-trnd-pos','Community-trnd-neg',
+ 'Society-sent-pos','Society-sent-neg','Society-trnd-pos','Society-trnd-neg',
+ 'Recreation-sent-pos','Recreation-sent-neg','Recreation-trnd-pos','Recreation-trnd-neg',
+ 'Relaxation-sent-pos','Relaxation-sent-neg','Relaxation-trnd-pos','Relaxation-trnd-neg',
+ 'Creativity-sent-pos','Creativity-sent-neg','Creativity-trnd-pos','Creativity-trnd-neg',
+ 'Productivity-sent-pos','Productivity-sent-neg','Productivity-trnd-pos','Productivity-trnd-neg',
+ 'Belonging-sent-pos','Belonging-sent-neg','Belonging-trnd-pos','Belonging-trnd-neg',
+ 'Recognition-sent-pos','Recognition-sent-neg','Recognition-trnd-pos','Recognition-trnd-neg',
+ 'Autonomy-sent-pos','Autonomy-sent-neg','Autonomy-trnd-pos','Autonomy-trnd-neg',
+ 'Liberty-sent-pos','Liberty-sent-neg','Liberty-trnd-pos','Liberty-trnd-neg',
+ 'spam']
+
+i=0
+x=0
+@st.cache(persist=True,allow_output_mutation=True)
+def load_data(x):
+    df = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv',converters={'percent':eval,'sents':eval})
+    #df = df.iloc [:,:]
+    data=df.iloc[x:x+1,:]
+    df = df.to_dict(orient='record')
+    return df , data
+
+def update_data(data,df,x):
+    v = data.to_dict(orient='record')
+    df[x].update(v[0])
+    df_out = pd.DataFrame(df)
+    df_out.to_csv('googlenews_top_monthly_2019_45cities_text_6.csv',index=False)
+    
+
+
+#names=['ID','city','month','url','text','title','summary','keywords','sents','percent']
+#### LOAD DATA ####
+x = st.number_input(label='News ID',value=0 ,min_value=0,max_value=4000 ,step=1)
+df , data = load_data(x)
+data
+
+#ddd = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv',converters={'percent':eval,'sents':eval})
+#ddd
+##### SIDE BAR #####
+# Document Classification
+st.sidebar.subheader("Document Level Annotation")
+doc = st.sidebar.radio('Document Classification',('Direct Relevance','Indirect Relevance','Not Relevant'))
+if st.sidebar.button('Update','doc_update'):
+    data.doc[x] = doc
+    update_data (data,df,x)
+
+
+########### db
+import os
+import csv
+import psycopg2
+
+from sqlalchemy import create_engine
+from sqlalchemy import MetaData, Table, Column, Integer, String
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+engine = create_engine("postgres://eaaooazfxtlhjc:507683fe889e638e719881b09e9d2ef78833175b1b2bc9a72ecb439b207ad415@ec2-34-225-162-157.compute-1.amazonaws.com:5432/d7ub5mfhuoe7cp", echo = True) # database engine object from SQLAlchemy that manages connections to the database
+                                                    # DATABASE_URL is an environment variable that indicates where the database lives
+#connection = engine.connect()
+#create table
+meta = MetaData()
+news = Table('news', meta, Column('city', String), Column('month', Integer), )
+meta.create_all(engine)
+
+st.write(engine.table_names())
+metadata=MetaData()
+c = Table('news',metadata,autoload=True,autoload_with=engine)
+st.write(repr(c))
+db = scoped_session(sessionmaker(bind=engine))
+
+if st.button('db','db'):
+    db.execute("INSERT INTO news (city, month) VALUES ('new york',6)")
+    #db.execute("SELECT * FROM news city")
+    db.commit()
+    table = db.execute("SELECT * FROM news WHERE month = :month", {"month": 6}).fetchall()
+    db.commit()
+    st.write(len(table))
+    for item in table:
+        st.write(item)
+    #res = pd.read_sql(table,db.bind)
+    #res
+##########
+
+
+#### NEWS DATA ####
+# Title
+st.subheader(data.title[x])
+
+####### SCREEN SHOT ########
+if st.button('Screenshot'):
+    DRIVER = 'chromedriver.exe'
+    driver = webdriver.Chrome(DRIVER)
+    driver.get(data.iloc[0,2])
+    screenshot = driver.save_screenshot('my_screenshot.png')
+    driver.quit()
+    st.image('my_screenshot.png',width=700)
+
+# City
+st.markdown(data.city[x])
+# url
+st.write(data.url[x])
+# Summary
+st.subheader("Summary")
+st.write(data.summary[x])
+# Percent prediction
+percent = pd.DataFrame.from_dict(data.percent[x], orient='index')
+percent.columns = ['percent']
+st.bar_chart(percent)
+
+# Keywords
+st.write(data.keywords)
+
+st.markdown('---') # visual separation
+
+st.subheader("Text")
+
+tag_out={}
+for i, sent in enumerate(data.sents[x]):
+    st.write(sent['sent'])
+    pred = sent['pred']
+    st.markdown(f'*<span style="color:grey">Current Model prediction:</span> <span style="color:#f63366">{pred}</span>*', unsafe_allow_html=True)
+    #st.write(sent['tag'])
+    default = sent['tag']
+    tag_out[f'{i}'] = st.multiselect('Tags',tags,key=i,default= default)
+    if st.button('Update',i):
+        sent['tag'] = tag_out[f'{i}']
+        update_data (data,df,x)
+
+
+#        st.write('result: %s' % result)
+#for i, sent in enumerate(data.sents[x]):
+#    sent['tag'] = tag_out[f'{i}']
+
+#
+
+
+#st.button('add')
+
+#st.button('add','01')
+#st.button('add','02')
+
+
+
