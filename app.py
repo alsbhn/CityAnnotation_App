@@ -86,7 +86,17 @@ def update_data(x,col,upd):
     db.execute("UPDATE news SET :col = :upd WHERE ID = :x", {"col": col, "upd": upd, "x": x})
     db.commit()    
 
-
+if st.button('db','db'):
+    df_1 = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv', converters={'sents':eval,'percent':eval})
+    df_1 = df_1.to_dict(orient='record')
+    st.write(len(df_1))
+    for row in df_1:
+        db.execute('INSERT INTO news (city, month, url, text, title, summary, keywords, sents, percent) VALUES (:city, :month, :url, :text, :title, :summary, :keywords, :sents, :percent)',{"city": row['city'], "month": row['month'], "url": str(row['url']), "text": str(row['text']),"title": str(row['title']), "summary": str(row['summary']), "keywords": str(row['keywords']), "sents": str(row['sents']),"percent": str(row['percent'])})
+    #db.execute("SELECT * FROM news city")
+    db.commit()
+    table = db.execute("SELECT * FROM news WHERE month = :month", {"month": 1}).fetchall()
+    db.commit()
+    st.write(len(table))
 #names=['ID','city','month','url','text','title','summary','keywords','sents','percent']
 #### LOAD DATA ####
 x = st.number_input(label='News ID',value=1 ,min_value=1,max_value=4000 ,step=1)
