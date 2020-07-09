@@ -15,11 +15,11 @@ from selenium import webdriver
 import os
 
 chrome_options = webdriver.ChromeOptions()
-chrome_options.binary_location = os.environ.get("/app/.apt/usr/bin/google-chrome")
+chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--no-sandbox")
-driver = webdriver.Chrome(executable_path=os.environ.get("/app/.chromedriver/bin/chromedriver"), chrome_options=chrome_options)
+driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
 from sqlalchemy import create_engine
 from sqlalchemy.sql import select, update
@@ -139,9 +139,7 @@ st.subheader(data['title'])
 
 ####### SCREEN SHOT ########
 if st.button('Screenshot'):
-    DRIVER = 'chromedriver.exe'
-    driver = webdriver.Chrome(DRIVER)
-    driver.get(data.iloc[0,2])
+    driver.get(data['url'])
     screenshot = driver.save_screenshot('my_screenshot.png')
     driver.quit()
     st.image('my_screenshot.png',width=700)
