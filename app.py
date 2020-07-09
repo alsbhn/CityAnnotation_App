@@ -15,18 +15,18 @@ from selenium import webdriver
 import os
 
 chrome_options = webdriver.ChromeOptions()
-chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+chrome_options.binary_location = os.environ.get("/app/.apt/usr/bin/google-chrome")
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--no-sandbox")
-driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
+driver = webdriver.Chrome(executable_path=os.environ.get("/app/.chromedriver/bin/chromedriver"), chrome_options=chrome_options)
 
 from sqlalchemy import create_engine
 from sqlalchemy.sql import select, update
 from sqlalchemy import MetaData, Table,Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine = create_engine("sqlite:///data_15.db", echo = True)
+engine = create_engine("postgres://bosbpchftrkpch:df4ca2e680e81597331145646e2374cf9f8ff9adfe0d73575da7556a488adcac@ec2-18-235-109-97.compute-1.amazonaws.com:5432/deeh8ovouhd76e", echo = True)
 db = scoped_session(sessionmaker(bind=engine))
 conn = engine.connect()
 #create or define the database table
