@@ -7,9 +7,19 @@ import time
 from nltk.tokenize import sent_tokenize
 import re
 #from newspaper import Article
-from selenium import webdriver
+
 #from functions import pred_percent, pred_sent, pred_array
 import ast
+
+from selenium import webdriver
+import os
+
+chrome_options = webdriver.ChromeOptions()
+chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--no-sandbox")
+driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
 from sqlalchemy import create_engine
 from sqlalchemy.sql import select, update
