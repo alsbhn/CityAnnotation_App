@@ -6,28 +6,36 @@ import pydeck as pdk
 import time
 from nltk.tokenize import sent_tokenize
 import re
-from newspaper import Article
+#from newspaper import Article
 from selenium import webdriver
-from functions import pred_percent, pred_sent, pred_array
+#from functions import pred_percent, pred_sent, pred_array
 import ast
 
 from sqlalchemy import create_engine
-from sqlalchemy.sql import select, update
 from sqlalchemy import MetaData, Table,Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine = create_engine("postgres://exaekdurajndft:50af1edce5c3f4b465cf7c46c19f0c0f955668f0d2b46a59659a71d2231a819f@ec2-18-214-119-135.compute-1.amazonaws.com:5432/d6cvgi0d4dbhkn", echo = True)
+engine = create_engine("postgres://nnatuggcykjxws:c355bf5344cdb8089eed92b896c3fcf5e7c0656c499f2ef93884c3d09fca047f@ec2-35-153-12-59.compute-1.amazonaws.com:5432/dbc78rvmill0a3", echo = True) # database engine object from SQLAlchemy that manages connections to the database
+                                                    # DATABASE_URL is an environment variable that indicates where the database lives
 db = scoped_session(sessionmaker(bind=engine))
-conn = engine.connect()
-#create or define the database table
+#connection = engine.connect()
+#create database table
 meta = MetaData()
 news = Table('news', meta, Column('ID', Integer, primary_key=True) , Column('city', String), Column('month', Integer),Column('url', String),
 Column('text', String),Column('title', String),Column('summary', String),Column('keywords', String),
 Column('sents', String),Column('percent', String),Column('doc', String), )
 meta.create_all(engine)
-#############
-st.sidebar.title("Annotation App")
-st.sidebar.markdown("""Cities, Urbanisation and Human Needs Satisfaction | Ali Sobhani""")
+
+DATE_TIME = "date/time"
+DATA_URL = (
+    "http://s3-us-west-2.amazonaws.com/streamlit-demo-data/uber-raw-data-sep14.csv.gz"
+)
+
+st.title("Annotation App")
+st.markdown(
+"""
+Cities, Urbanisation and Human Needs Satisfaction | Ali Sobhani
+""")
 tags = ['Physiology-sent-pos','Physiology-sent-neg','Physiology-trnd-pos','Physiology-trnd-neg',
  'Space-sent-pos','Space-sent-neg','Space-trnd-pos','Space-trnd-neg',
  'Mobility-sent-pos','Mobility-sent-neg','Mobility-trnd-pos','Mobility-trnd-neg',
@@ -49,46 +57,9 @@ tags = ['Physiology-sent-pos','Physiology-sent-neg','Physiology-trnd-pos','Physi
  'Liberty-sent-pos','Liberty-sent-neg','Liberty-trnd-pos','Liberty-trnd-neg',
  'spam']
 
-
-
-
-#allow_output_mutation=True
-#persist=True
-@st.cache(allow_output_mutation=True)
-def load_data(x):
-    s = news.select(news.c.ID == x)
-    result = conn.execute(s)
-    for row in result:
-        data = row
-    (ID,city,month,url,text,title,summary,keywords,sents,percent,doc)=data
-    data = {'ID':ID,'city':city,'month':month,'url':url,'text':text,'title':title,'summary':summary,'keywords':keywords,'sents':sents,'percent':percent,'doc':doc}
-    return data
-
-#def update_data(data,df,x):
-#    v = data.to_dict(orient='record')
-#    df[x].update(v[0])
-#    df_out = pd.DataFrame(df)
-#    df_out.to_csv('googlenews_top_monthly_2019_45cities_text_6.csv',index=False)
-
-def update_data(x,upd):
-    stmt = news.update().where(news.c.ID == x).values(sents= upd)
-    conn.execute(stmt)
-def import_data():
-    df_1 = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv', converters={'sents':eval,'percent':eval})
-    df_1 = df_1.to_dict(orient='record')
-    st.write(len(df_1))
-    for row in df_1:
-        db.execute('INSERT INTO news (city, month, url, text, title, summary, keywords, sents, percent) VALUES (:city, :month, :url, :text, :title, :summary, :keywords, :sents, :percent)',{"city": row['city'], "month": row['month'], "url": str(row['url']), "text": str(row['text']),"title": str(row['title']), "summary": str(row['summary']), "keywords": str(row['keywords']), "sents": str(row['sents']),"percent": str(row['percent'])})
-    db.commit() 
-
-#names=['ID','city','month','url','text','title','summary','keywords','sents','percent']
-#### LOAD DATA ####
-########### import data from csv to database
-if st.button('db','db'):
-    import_data()
-##########
-x = st.sidebar.number_input(label='News ID',value=1 ,min_value=1,max_value=4000 ,step=1)
-data = load_data(x)
+i=0
+x=0
+@st.cache(persist=True,allow_output_mutation=True)
 #def load_data(x):
 #    df = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv', converters={'sents':eval,'percent':eval})
     #df = df.iloc [:,:]
@@ -96,13 +67,89 @@ data = load_data(x)
 #    df = df.to_dict(orient='record')
 #    return df , data
 
+def load_data(x):
+    #data = db.execute("SELECT * FROM news WHERE ID = :ID", {"ID": x}).fetchall()
+    data = db.execute("SELECT * FROM news WHERE ID = {}".format(x)).fetchall()  
+    data = data [0]
+    (ID,city,month,url,text,title,summary,keywords,sents,percent,doc)=data
+    data = {'ID':ID,'city':city,'month':month,'url':url,'text':text,'title':title,'summary':summary,'keywords':keywords,'sents':sents,'percent':percent,'doc':doc}
+    return  data
+
+#def update_data(data,df,x):
+#    v = data.to_dict(orient='record')
+#    df[x].update(v[0])
+#    df_out = pd.DataFrame(df)
+#    df_out.to_csv('googlenews_top_monthly_2019_45cities_text_6.csv',index=False)
+
+def update_data(x,col,upd):
+    #query = "UPDATE news SET :col = :upd WHERE ID = :x", {"col": col, "upd": upd, "x": x}
+    #st.write("UPDATE news SET :col = :upd WHERE ID = :x", {"col": col, "upd": upd, "x": x})
+    db.execute("UPDATE news SET :col = :upd WHERE ID = :x", {"col": col, "upd": upd, "x": x})
+    db.commit()    
+
+if st.button('db','db'):
+    df_1 = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv', converters={'sents':eval,'percent':eval})
+    df_1 = df_1.to_dict(orient='record')
+    st.write(len(df_1))
+    for row in df_1:
+        db.execute('INSERT INTO news (city, month, url, text, title, summary, keywords, sents, percent) VALUES (:city, :month, :url, :text, :title, :summary, :keywords, :sents, :percent)',{"city": row['city'], "month": row['month'], "url": str(row['url']), "text": str(row['text']),"title": str(row['title']), "summary": str(row['summary']), "keywords": str(row['keywords']), "sents": str(row['sents']),"percent": str(row['percent'])})
+    #db.execute("SELECT * FROM news city")
+    db.commit()
+    table = db.execute("SELECT * FROM news WHERE month = :month", {"month": 1}).fetchall()
+    db.commit()
+    st.write(len(table))
+#names=['ID','city','month','url','text','title','summary','keywords','sents','percent']
+#### LOAD DATA ####
+x = st.number_input(label='News ID',value=1 ,min_value=1,max_value=4000 ,step=1)
+#df , data = load_data(x)
+data = load_data(x)
 
 #data
+#row = data.to_dict(orient='record')[0]
 
+########### db
+
+
+
+# import data from csv file
+#f = open("googlenews_top_monthly_2019_45cities_text_6.csv")
+#reader = csv.reader(f)
+#for city, month, url, text, title, suammary, keywords, sents, percent, doc in reader: # loop gives each column a name
+#    db.execute("INSERT INTO news (city, month, url, text, title, suammary, keywords, sents, percent, doc) VALUES (:city, :month, :url, :text, :title, :suammary, :keywords, :sents, :percent, :doc)",
+#                {"city": city, "month": month, "url": url, "text": text, "title": title, "summary": suammary, "keywords": keywords, "sents": sents, "percent": percent, "doc": doc}) # substitute values from CSV line into SQL command, as per this dict
+#db.commit() # transactions are assumed, so close the transaction finished
+
+
+#######
+
+st.write(engine.table_names())
+metadata=MetaData()
+c = Table('news',metadata,autoload=True,autoload_with=engine)
+st.write(repr(c))
+
+if st.button('insert','insert'):
+    db.execute("UPDATE news SET doc = 'document added' WHERE ID = 7")
+    db.commit()
+
+if st.button('db','db'):
+    df_1 = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv', converters={'sents':eval,'percent':eval})
+    df_1 = df_1.to_dict(orient='record')
+    st.write(len(df_1))
+    for row in df_1:
+        db.execute('INSERT INTO news (city, month, url, text, title, summary, keywords, sents, percent) VALUES (:city, :month, :url, :text, :title, :summary, :keywords, :sents, :percent)',{"city": row['city'], "month": row['month'], "url": str(row['url']), "text": str(row['text']),"title": str(row['title']), "summary": str(row['summary']), "keywords": str(row['keywords']), "sents": str(row['sents']),"percent": str(row['percent'])})
+    #db.execute("SELECT * FROM news city")
+    db.commit()
+    table = db.execute("SELECT * FROM news WHERE month = :month", {"month": 1}).fetchall()
+    db.commit()
+    st.write(len(table))
+    #for item in table:
+     #   st.write(item)
+    #res = pd.read_sql(table,db.bind)
+    #res
 ##########
 
-
-
+#ddd = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv',converters={'percent':eval,'sents':eval})
+#ddd
 ##### SIDE BAR #####
 # Document Classification
 st.sidebar.subheader("Document Level Annotation")
@@ -148,23 +195,31 @@ st.markdown('---') # visual separation
 st.subheader("Text")
 
 tag_out={}
-butt={}
 text_sents = ast.literal_eval(data['sents'])
+
+if st.button('Update',123432):
+        #sent['tag'] = tag_out[f'{i}']
+        sent = {'sent':'ammat', 'pred':'ammehat', 'tag':'sdf2f2ff'}
+        p = "UPDATE news SET sents = " + '"' + f"{str(sent)}" + '"' + f" WHERE ID = {x}"
+        st.write(p)
+        #update_data (x,"sents",str(sent))
+        db.execute(p)
+        db.commit()
+
 for i, sent in enumerate(text_sents):
     st.write(sent['sent'])
     pred = sent['pred']
     st.markdown(f'*<span style="color:grey">Current Model prediction:</span> <span style="color:#f63366">{pred}</span>*', unsafe_allow_html=True)
     #st.write(sent['tag'])
-    if st.checkbox('Edit',False,f'{x}{i}'):
-        st.markdown('---')
-        default = sent['tag']
-        tag_out[f'{i}'] = st.multiselect('Tags',tags,key=i,default= default)
-        comm = st.text_area('Comments', key=i)
-        if st.button('Update',i):
-            sent['tag'] = tag_out[f'{i}']
-            update_data(x,str(text_sents))   
-        st.markdown('---')  
-            #st.write(str(text_sents))
+    default = sent['tag']
+    tag_out[f'{i}'] = st.multiselect('Tags',tags,key=i,default= default)
+    if st.button('Update',i):
+        sent['tag'] = tag_out[f'{i}']
+        p = "UPDATE news SET sents = " + '"' + f"{str(sent)}" + '"' + f" WHERE ID = {x}"
+        st.write(p)
+        #update_data (x,"sents",str(sent))
+        db.execute(p)
+        db.commite()
 
 
 #        st.write('result: %s' % result)
