@@ -16,7 +16,7 @@ from sqlalchemy.sql import select, update
 from sqlalchemy import MetaData, Table,Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine = create_engine("sqlite:///data_15.db", echo = True)
+engine = create_engine("postgres://exaekdurajndft:50af1edce5c3f4b465cf7c46c19f0c0f955668f0d2b46a59659a71d2231a819f@ec2-18-214-119-135.compute-1.amazonaws.com:5432/d6cvgi0d4dbhkn", echo = True)
 db = scoped_session(sessionmaker(bind=engine))
 conn = engine.connect()
 #create or define the database table
@@ -73,7 +73,6 @@ def load_data(x):
 def update_data(x,upd):
     stmt = news.update().where(news.c.ID == x).values(sents= upd)
     conn.execute(stmt)
-
 def import_data():
     df_1 = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv', converters={'sents':eval,'percent':eval})
     df_1 = df_1.to_dict(orient='record')
@@ -82,18 +81,7 @@ def import_data():
         db.execute('INSERT INTO news (city, month, url, text, title, summary, keywords, sents, percent) VALUES (:city, :month, :url, :text, :title, :summary, :keywords, :sents, :percent)',{"city": row['city'], "month": row['month'], "url": str(row['url']), "text": str(row['text']),"title": str(row['title']), "summary": str(row['summary']), "keywords": str(row['keywords']), "sents": str(row['sents']),"percent": str(row['percent'])})
     db.commit() 
 
-##### FUNCTIONS FOR STYLE ######
-def text_box(txt):
-    txt = f"<span style='padding:4px;border-radius:3px;background-color:#f63366;color:white;font-size:12px'>{txt}</span>"
-    return txt
-
 #names=['ID','city','month','url','text','title','summary','keywords','sents','percent']
-
-#st.markdown("Ali Sobhani is a <span style='border:1px #f63366 solid;padding:2px;border-radius:3px;'>nice</span> PhD Candidate",unsafe_allow_html=True)
-#st.markdown("Ali Sobhani is a <span style='padding:2px;border-radius:3px;background-color:#f63366;color:white;'>nice</span> PhD Candidate",unsafe_allow_html=True)
-
-#st.markdown(text_box("Ali Aghaye gol"),unsafe_allow_html=True)
-
 #### LOAD DATA ####
 ########### import data from csv to database
 if st.button('db','db'):
@@ -160,29 +148,22 @@ st.markdown('---') # visual separation
 st.subheader("Text")
 
 tag_out={}
-com_out={}
+butt={}
 text_sents = ast.literal_eval(data['sents'])
 for i, sent in enumerate(text_sents):
     st.write(sent['sent'])
     pred = sent['pred']
-    st.markdown(f'*<span style="color:grey">Current Model prediction: </span> <span style="color:#f63366;font-size:14px;">{pred}</span>*', unsafe_allow_html=True)
-    st.markdown(f"*<span style='color:grey'>New Tags: </span>*{text_box(sent['tag'])}", unsafe_allow_html=True)
-    st.markdown(f"*<span style='color:grey'>Comments: </span><span style='font-size:14px;'>{sent['comment']}</span>*", unsafe_allow_html=True)
-    
-    #for tag in sent['tag']:
-    #    st.markdown(text_box(tag),unsafe_allow_html=True)
+    st.markdown(f'*<span style="color:grey">Current Model prediction:</span> <span style="color:#f63366">{pred}</span>*', unsafe_allow_html=True)
     #st.write(sent['tag'])
     if st.checkbox('Edit',False,f'{x}{i}'):
         st.markdown('---')
         default = sent['tag']
         tag_out[f'{i}'] = st.multiselect('Tags',tags,key=i,default= default)
-        com_out[f'{i}'] = st.text_area('Comments',value=str(sent['comment']), key=i)
+        comm = st.text_area('Comments', key=i)
         if st.button('Update',i):
             sent['tag'] = tag_out[f'{i}']
-            sent['comment']=com_out[f'{i}']
             update_data(x,str(text_sents))   
-        st.markdown('---')
-    st.markdown('---')  
+        st.markdown('---')  
             #st.write(str(text_sents))
 
 
