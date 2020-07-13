@@ -18,7 +18,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 engine = create_engine("postgres://teebxnrpxkbgqo:f2c165c6d6271064b9504093d8f0a32264be230256bc867fec08e8a8891c1225@ec2-52-72-65-76.compute-1.amazonaws.com:5432/d1mb8mo4gt4v3s", echo = True)
 db = scoped_session(sessionmaker(bind=engine))
-conn = engine.connect()
+
 #create or define the database table
 meta = MetaData()
 news = Table('news', meta, Column('ID', Integer, primary_key=True) , Column('city', String), Column('month', Integer),Column('url', String),
@@ -56,7 +56,9 @@ tags = ['Physiology-sent-pos','Physiology-sent-neg','Physiology-trnd-pos','Physi
 @st.cache(allow_output_mutation=True)
 def load_data(x):
     s = news.select(news.c.ID == x)
+    conn = engine.connect()
     result = conn.execute(s)
+    conn.close()
     for row in result:
         data = row
     (ID,city,month,url,text,title,summary,keywords,sents,percent,doc_rel,doc_top)=data
@@ -71,7 +73,9 @@ def load_data(x):
 
 def update_data(x,upd):
     stmt = news.update().where(news.c.ID == x).values(sents= upd)
+    conn = engine.connect()
     conn.execute(stmt)
+    conn.close()
 
 def import_data():
     df_1 = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv', converters={'sents':eval,'percent':eval,'doc_top':eval})
@@ -96,7 +100,9 @@ def doc_edit():
     doc_top = st.sidebar.multiselect('Topic',['Strongly about city','Policy','Events and Incidents'],default=doc_top_def)
     if st.sidebar.button('Update','doc_update'):
         stmt = news.update().where(news.c.ID == x).values(doc_top=str(doc_top),doc_rel=doc_rel)
+        conn = engine.connect()
         conn.execute(stmt)
+        conn.close()
             
 ##### FUNCTIONS FOR STYLE ######
 def text_box(txt):
