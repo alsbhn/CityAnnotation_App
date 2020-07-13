@@ -48,7 +48,10 @@ tags = ['Physiology-sent-pos','Physiology-sent-neg','Physiology-trnd-pos','Physi
  'Autonomy-sent-pos','Autonomy-sent-neg','Autonomy-trnd-pos','Autonomy-trnd-neg','Autonomy neut',
  'Liberty-sent-pos','Liberty-sent-neg','Liberty-trnd-pos','Liberty-trnd-neg','Liberty neut']
 
-
+## Import Definitions Table csv File ##
+definitions = pd.read_csv('definitions.csv',encoding='latin-1')
+definitions = definitions.to_dict(orient='record')
+#####
 
 
 #allow_output_mutation=True
@@ -112,6 +115,9 @@ def doc_class_side():
 def text_box(txt):
     txt = f"<span style='padding:5px;border-radius:3px;background-color:#f63366;color:white;font-size:13px'>{txt}</span>"
     return txt
+def text_boarder(txt):
+    txt = f"<span style='border:1px #f63366 solid;padding:2px;border-radius:3px;'>{txt}</span>"
+    return txt  
 def clean_t(r):
     r = str(r)
     r = r.replace("'","")
@@ -145,6 +151,12 @@ def Result():
 def Guid():
     st.header('Cities, Urbanization and Human Needs Satisfaction')  
     st.subheader('Ali Sobhani | Delft University of Technology')
+    st.write('---')
+    for definition in definitions:
+        st.subheader(definition['Needs'])
+        st.markdown(f"{text_boarder('Definition')} {definition['Definition']}",unsafe_allow_html=True)
+        st.markdown(f"{text_boarder('Dimensions')} {text_box(definition['Dimensions'])}",unsafe_allow_html=True)
+        st.markdown(f"{text_boarder('Satisfiers')} {definition['Satisfiers']}",unsafe_allow_html=True)
 
 def Annotation():
     #### NEWS DATA ####
