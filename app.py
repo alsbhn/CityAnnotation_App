@@ -94,7 +94,9 @@ def doc_edit():
     doc_top = st.sidebar.multiselect('Topic',['General about city','Policy','Events and Incidents','Life of Residents'],default=doc_top_def)
     if st.sidebar.button('Update','doc_update'):
         stmt = news.update().where(news.c.ID == x).values(doc_top=str(doc_top),doc_rel=doc_rel)
+        conn = engine.connect()
         conn.execute(stmt)
+        conn.close()
 
 def doc_class_side():
     st.sidebar.subheader("Document Level Annotation")
@@ -238,8 +240,8 @@ def Annotation():
 
 #### LOAD DATA ####
 ########### import data from csv to database
-if st.button('db','db'):
-    import_data()
+#if st.button('db','db'):
+#    import_data()
 ##########
 
 
