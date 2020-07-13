@@ -16,7 +16,7 @@ from sqlalchemy.sql import select, update
 from sqlalchemy import MetaData, Table,Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine = create_engine("postgres://teebxnrpxkbgqo:f2c165c6d6271064b9504093d8f0a32264be230256bc867fec08e8a8891c1225@ec2-52-72-65-76.compute-1.amazonaws.com:5432/d1mb8mo4gt4v3s", echo = True)
+engine = create_engine("postgres://pspsbduuexrmhz:3b738e7ab2bf0c1418bdccf100c75b0f61f462af0b9230e4836905b1d8ebfc33@ec2-54-197-254-117.compute-1.amazonaws.com:5432/dagb4i83c1s0p8", echo = True)
 db = scoped_session(sessionmaker(bind=engine))
 
 #create or define the database table
@@ -65,12 +65,6 @@ def load_data(x):
     data = {'ID':ID,'city':city,'month':month,'url':url,'text':text,'title':title,'summary':summary,'keywords':keywords,'sents':sents,'percent':percent,'doc_rel':doc_rel,'doc_top':doc_top}
     return data
 
-#def update_data(data,df,x):
-#    v = data.to_dict(orient='record')
-#    df[x].update(v[0])
-#    df_out = pd.DataFrame(df)
-#    df_out.to_csv('googlenews_top_monthly_2019_45cities_text_6.csv',index=False)
-
 def update_data(x,upd):
     stmt = news.update().where(news.c.ID == x).values(sents= upd)
     conn = engine.connect()
@@ -78,7 +72,7 @@ def update_data(x,upd):
     conn.close()
 
 def import_data():
-    df_1 = pd.read_csv('googlenews_top_monthly_2019_45cities_text_6.csv', converters={'sents':eval,'percent':eval,'doc_top':eval})
+    df_1 = pd.read_csv('googlenews_top_monthly_2019_45cities_text_8.csv', converters={'sents':eval,'percent':eval,'doc_top':eval})
     df_1 = df_1.to_dict(orient='record')
     st.write(len(df_1))
     for row in df_1:
@@ -97,12 +91,20 @@ def doc_edit():
         doc_top_def = []
     else:
         doc_top_def = ast.literal_eval(data['doc_top'])
-    doc_top = st.sidebar.multiselect('Topic',['Strongly about city','Policy','Events and Incidents'],default=doc_top_def)
+    doc_top = st.sidebar.multiselect('Topic',['General about city','Policy','Events and Incidents','Life of Residents'],default=doc_top_def)
     if st.sidebar.button('Update','doc_update'):
         stmt = news.update().where(news.c.ID == x).values(doc_top=str(doc_top),doc_rel=doc_rel)
-        conn = engine.connect()
         conn.execute(stmt)
-        conn.close()
+
+def doc_class_side():
+    st.sidebar.subheader("Document Level Annotation")
+    if data['doc_rel'] != None:
+        st.sidebar.markdown(f"<span style='border:1px #f63366 solid;padding:5px;border-radius:3px;'>{data['doc_rel']}</span>",unsafe_allow_html=True)
+    try:
+        for tag in ast.literal_eval(data['doc_top']):
+            st.sidebar.markdown(f"<span style='padding:5px;border-radius:3px;background-color:#f63366;color:white;'>{tag}</span>",unsafe_allow_html=True)
+    except:
+        pass
             
 ##### FUNCTIONS FOR STYLE ######
 def text_box(txt):
@@ -116,6 +118,28 @@ def clean_t(r):
     return r
 
 ##### FUNCTIONS FOR PAGES #######
+def Result():
+    st.subheader(data['title'])
+    st.markdown(data['city'])
+    st.write(data['url'])
+    doc_class_side()
+    for res in [('tag','Sentiment'),('obj','Objectivity'),('scope','Scope'),('veen','Veenhoven Quadrant')]:
+        result = []
+        l = len (ast.literal_eval(data['sents']))
+        st.subheader(res[1])
+        for sent in ast.literal_eval(data['sents']):
+            imp_list = ['spam','Not important','Slightly important','Important','Very Important','Extreamly important']
+            try:
+                imp = imp_list.index(sent['Imp'][0])
+            except:
+                imp = 0
+            for j in range(imp): 
+                result=result+sent[res[0]]
+                
+        result = dict((x,result.count(x)/l) for x in set(result))
+        st.bar_chart(pd.Series(result))
+
+
 def Guid():
     st.header('Cities, Urbanization and Human Needs Satisfaction')  
     st.subheader('Ali Sobhani | Delft University of Technology')
@@ -224,7 +248,7 @@ user = st.sidebar.text_input('Username')
 if user in ['Ali','Evert','Rodrigo']:
 ########################################
     menue = st.sidebar.selectbox('Menue',['Annotation','Result','Guide'],key='menue')
-    x = st.sidebar.number_input(label='News ID',value=1 ,min_value=1,max_value=4000 ,step=1)
+    x = st.sidebar.number_input(label='News ID',value=1 ,min_value=1,max_value=4206 ,step=1)
     data = load_data(x)
     ### ANNOTATION #########################
     if menue == 'Annotation':
@@ -232,19 +256,17 @@ if user in ['Ali','Evert','Rodrigo']:
 
         ##### SIDE BAR #####
         # Document Classification
-        st.sidebar.subheader("Document Level Annotation")
-        if data['doc_rel'] != None:
-            st.sidebar.markdown(f"<span style='border:1px #f63366 solid;padding:5px;border-radius:3px;'>{data['doc_rel']}</span>",unsafe_allow_html=True)
-        try:
-            for tag in ast.literal_eval(data['doc_top']):
-                st.sidebar.markdown(f"<span style='padding:5px;border-radius:3px;background-color:#f63366;color:white;'>{tag}</span>",unsafe_allow_html=True)
-        except:
-            pass
+        doc_class_side()
         if st.sidebar.checkbox ('Edit',False,'edit-doc'):
             doc_edit()
                
     ########################################
-
+    
+    ### RESULT #############################
+    if menue == 'Result':
+        Result()
+    ########################################
+    
     ### GUIDE ##############################
     if menue == 'Guide':
         Guid()
