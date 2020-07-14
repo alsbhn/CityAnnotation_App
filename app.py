@@ -261,11 +261,11 @@ def Annotation():
 user = st.sidebar.text_input('Username')
 if user in ['Ali','Evert','Rodrigo','Martijn']:
 ########################################
-    menue = st.sidebar.selectbox('Menue',['Annotation','Result','Guide'],key='menue')
+    menu = st.sidebar.selectbox('Menu',['Annotation','Result','Guide'],key='menu')
     x = st.sidebar.number_input(label='News ID',value=1 ,min_value=1,max_value=4206 ,step=1)
     data = load_data(x)
     ### ANNOTATION #########################
-    if menue == 'Annotation':
+    if menu == 'Annotation':
         Annotation()
 
         ##### SIDE BAR #####
@@ -277,12 +277,12 @@ if user in ['Ali','Evert','Rodrigo','Martijn']:
     ########################################
     
     ### RESULT #############################
-    if menue == 'Result':
+    if menu == 'Result':
         Result()
     ########################################
     
     ### GUIDE ##############################
-    if menue == 'Guide':
+    if menu == 'Guide':
         Guid()
          
 
