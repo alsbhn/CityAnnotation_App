@@ -16,7 +16,7 @@ from sqlalchemy.sql import select, update
 from sqlalchemy import MetaData, Table,Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine = create_engine("sqlite:///data_21.db", echo = True)
+engine = create_engine("postgres://cxeoucyjzjxfgt:0b3134fdc3000379a8a52c1b500eef27fc3dfa8f50cd370f69c102f61a8978af@ec2-34-239-241-25.compute-1.amazonaws.com:5432/dfeo62j1nite2e", echo = True)
 db = scoped_session(sessionmaker(bind=engine))
 
 #create or define the database table
@@ -124,26 +124,6 @@ def clean_t(r):
     r = r.replace("[","")
     r = r.replace("]","")
     return r
-def ner_tag(tag):
-    tags = ['ct','cz','org']
-    tag_out = ['CITY','CITIZEN','ORGANIZATION']
-    t=''
-    try:
-        t = tag_out[tags.index(tag)]
-    except:
-        pass
-    return t
-def text_ner(txt):
-    txt = txt.split("_")
-    txt_out=''
-    for t in txt:
-        if ":" in t:
-            t = t.split(":")
-            t = "<span style='border:1px #f63366 solid;padding:3px;border-radius:3px;font-weight: 500;'>"+t[0]+"</span>"+"<span style='padding:2px;border-radius:3px;background-color:#fffd80;color:grey;font-size:13px;margin-left:5px;font-weight: 400;'>"+ner_tag(t[1])+"</span>"
-        txt_out = txt_out + t
-    return txt_out
-
-
 
 ##### FUNCTIONS FOR PAGES #######
 def Result():
@@ -230,10 +210,9 @@ def Annotation():
     veen_out={}
     Imp_out={}
     com_out={}
-    sent_out={}
     text_sents = ast.literal_eval(data['sents'])
     for i, sent in enumerate(text_sents):
-        st.markdown(text_ner(sent['sent']),unsafe_allow_html=True)
+        st.write(sent['sent'])
         pred = sent['pred']
         st.markdown(f'*<span style="color:grey">Current Model prediction: </span> <span style="color:#f63366;font-size:16px;">{clean_t(pred)}</span>*', unsafe_allow_html=True)
         st.markdown("*<span style='color:grey'>New Tags: </span>*",unsafe_allow_html=True)
@@ -260,11 +239,6 @@ def Annotation():
                 sent['Imp']= Imp_out[f'{i}']
                 update_data(x,str(text_sents))   
             st.markdown('---')
-        if st.checkbox('NER',False,f'{x}{i}-ner'):
-            sent_out[f'{i}']=st.text_area('ct: City, cz: Citizen, org: Organizations',value = sent['sent'],key= f"{i}-ner")
-            if st.button('Update',f"{i}-ner"):
-                sent['sent']=sent_out[f'{i}']
-                update_data(x,str(text_sents))
         st.markdown('---')  
                 
 
