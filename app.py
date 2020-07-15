@@ -10,6 +10,7 @@ from selenium import webdriver
 import os
 
 import ast
+import pybase64
 
 from sqlalchemy import create_engine
 from sqlalchemy.sql import select, update
@@ -143,7 +144,23 @@ def text_ner(txt):
         txt_out = txt_out + t
     return txt_out
 
+##### FUNCTIONS FOR Downloading The Data #######
+def get_table_download_link(df):
+            csv = df.to_csv(index=False)
+            b64 = pybase64.b64encode(
+                csv.encode()
+            ).decode()  # some strings <-> bytes conversions necessary here
+            return f'<a href="data:file/csv;base64,{b64}" download="data-{start}-{end}.csv">Download csv file</a>'
 
+def get_database(start,end):
+    database = []
+    p_bar = st.progress(0)
+    for y in range(start,end+1):
+        d = load_data(y)
+        database.append(d)
+        p_bar.progress(y/(end+1-start))
+    database = pd.DataFrame(database)
+    return database
 
 ##### FUNCTIONS FOR PAGES #######
 def Result():
@@ -287,7 +304,7 @@ def Annotation():
 user = st.sidebar.text_input('Username')
 if user in ['Ali','Evert','Rodrigo','Martijn']:
 ########################################
-    menu = st.sidebar.selectbox('Menu',['Annotation','Result','Guide'],key='menu')
+    menu = st.sidebar.selectbox('Menu',['Annotation','Result','Guide','Data'],key='menu')
     x = st.sidebar.number_input(label='News ID',value=1 ,min_value=1,max_value=4206 ,step=1)
     data = load_data(x)
     ### ANNOTATION #########################
@@ -310,5 +327,19 @@ if user in ['Ali','Evert','Rodrigo','Martijn']:
     ### GUIDE ##############################
     if menu == 'Guide':
         Guid()
-         
+    ########################################
+
+    ### Data ###############################
+    if menu == 'Data':
+        start = st.number_input(label='Start index',value=1 ,min_value=1,max_value=4206 ,step=1)
+        end = st.number_input(label='Start index',value=10 ,min_value=2,max_value=4206 ,step=1)
+        if st.button(label='Produce Data',key='producedata'):
+            database = get_database(start,end)
+            st.markdown(get_table_download_link(database), unsafe_allow_html=True)
+
+
+
+
+
+
 
