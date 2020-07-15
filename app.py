@@ -150,7 +150,7 @@ def get_table_download_link(df):
             b64 = pybase64.b64encode(
                 csv.encode()
             ).decode()  # some strings <-> bytes conversions necessary here
-            return f'<a href="data:file/csv;base64,{b64}" download="data-{start}-{end}.csv">Download csv file</a>'
+            return f'<a href="data:file/csv;base64,{b64}" download="data.csv">Download csv file</a>'
 
 def get_database(start,end):
     database = []
