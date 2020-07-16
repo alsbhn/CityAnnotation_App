@@ -109,8 +109,8 @@ def clean_t(r):
     r = r.replace("]","")
     return r
 def ner_tag(tag):
-    tags = ['ct','cz','org']
-    tag_out = ['CITY','CITIZEN','ORGANIZATION']
+    tags = ['ct','cz','org','st']
+    tag_out = ['CITY','CITIZENS','ORGANIZATION','STATE']
     t=''
     try:
         t = tag_out[tags.index(tag)]
@@ -261,7 +261,7 @@ def Annotation():
                 update_data(x,str(text_sents))   
             st.markdown('---')
         if st.checkbox('NER',False,f'{x}{i}-ner'):
-            sent_out[f'{i}']=st.text_area('ct: City, cz: Citizen, org: Organizations',value = sent['sent'],key= f"{i}-ner")
+            sent_out[f'{i}']=st.text_area('ct: City, cz: Citizens, org: Organizations, st: State',value = sent['sent'],key= f"{i}-ner")
             if st.button('Update',f"{i}-ner"):
                 sent['sent']=sent_out[f'{i}']
                 update_data(x,str(text_sents))
