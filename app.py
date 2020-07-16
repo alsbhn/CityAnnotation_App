@@ -148,8 +148,9 @@ def get_database(start,end):
     return database
 
 def coocc_matrix(data):
-    tags = ['Perception','Fact','Policy','Occasional','General','Local','City-wide','Slightly important','Very Important','Extreamly important']
+    tags = ['Perception','Fact','Policy','Occasional','General','Local','City-wide']
     tags1 = ['obj', 'scope', 'Imp']
+    imp_list=['Slightly important','Very Important','Extreamly important']
     coocc=dict()
     for sent in data:
         for t in sent['tag']:
@@ -164,8 +165,14 @@ def coocc_matrix(data):
                 for t in tags:
                     for tt in tags1:
                         if t in sent[f'{tt}']:
-                            coocc[f'{co}'].update({f'{t}':coocc[f'{co}'][f'{t}']+1})
+                            try:
+                                imp = imp_list.index(sent['Imp'][0])
+                            except:
+                                imp = 0
+                            coocc[f'{co}'].update({f'{t}':coocc[f'{co}'][f'{t}']+imp})
     return pd.DataFrame(coocc)
+
+
 
 ##### FUNCTIONS FOR PAGES #######
 def Result():
