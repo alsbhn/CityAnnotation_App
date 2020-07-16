@@ -29,25 +29,8 @@ meta.create_all(engine)
 #############
 st.sidebar.title("Annotation App")
 st.sidebar.markdown("""Cities, Urbanisation and Human Needs Satisfaction | Ali Sobhani""")
-tags = ['Physiology-sent-pos','Physiology-sent-neg','Physiology-trnd-pos','Physiology-trnd-neg','Physiology neut',
- 'Space-sent-pos','Space-sent-neg','Space-trnd-pos','Space-trnd-neg','Space neut',
- 'Mobility-sent-pos','Mobility-sent-neg','Mobility-trnd-pos','Mobility-trnd-neg','Mobility neut',
- 'Health-sent-pos','Health-sent-neg','Health-trnd-pos','Health-trnd-neg','Health neut',
- 'Saf&Sec-sent-pos','Saf&Sec-sent-neg','Saf&Sec-trnd-pos','Saf&Sec-trnd-neg','Saf&Sec neut',
- 'Intimacy-sent-pos','Intimacy-sent-neg','Intimacy-trnd-pos','Intimacy-trnd-neg','Intimacy neut',
- 'Aesthetics-sent-pos','Aesthetics-sent-neg','Aesthetics-trnd-pos','Aesthetics-trnd-neg','Aesthetics neut',
- 'Knowledge-sent-pos','Knowledge-sent-neg','Knowledge-trnd-pos','Knowledge-trnd-neg','Knowledge neut',
- 'Innovation-sent-pos','Innovation-sent-neg','Innovation-trnd-pos','Innovation-trnd-neg','Innovation neut',
- 'Community-sent-pos','Community-sent-neg','Community-trnd-pos','Community-trnd-neg','Community neut',
- 'Society-sent-pos','Society-sent-neg','Society-trnd-pos','Society-trnd-neg','Society neut',
- 'Recreation-sent-pos','Recreation-sent-neg','Recreation-trnd-pos','Recreation-trnd-neg','Recreation neut',
- 'Relaxation-sent-pos','Relaxation-sent-neg','Relaxation-trnd-pos','Relaxation-trnd-neg','Relaxation neut',
- 'Creativity-sent-pos','Creativity-sent-neg','Creativity-trnd-pos','Creativity-trnd-neg','Creativity neut',
- 'Productivity-sent-pos','Productivity-sent-neg','Productivity-trnd-pos','Productivity-trnd-neg','Productivity neut',
- 'Belonging-sent-pos','Belonging-sent-neg','Belonging-trnd-pos','Belonging-trnd-neg','Belonging neut',
- 'Recognition-sent-pos','Recognition-sent-neg','Recognition-trnd-pos','Recognition-trnd-neg','Recognition neut',
- 'Autonomy-sent-pos','Autonomy-sent-neg','Autonomy-trnd-pos','Autonomy-trnd-neg','Autonomy neut',
- 'Liberty-sent-pos','Liberty-sent-neg','Liberty-trnd-pos','Liberty-trnd-neg','Liberty neut']
+
+tags = pd.read_csv('sentiments.csv',index_col=False).sents.tolist()
 
 ## Import Definitions Table csv File ##
 definitions = pd.read_csv('definitions.csv',encoding='latin-1')
