@@ -166,7 +166,7 @@ def coocc_matrix(data):
                     for tt in tags1:
                         if t in sent[f'{tt}']:
                             try:
-                                imp = imp_list.index(sent['Imp'][0])
+                                imp = imp_list.index(sent['Imp'][0])+1
                             except:
                                 imp = 0
                             coocc[f'{co}'].update({f'{t}':coocc[f'{co}'][f'{t}']+imp})
