@@ -8,3 +8,4 @@ selenium
 sqlalchemy
 psycopg2
 pybase64
+seaborn

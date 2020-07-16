@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
 import altair as alt
@@ -8,6 +9,7 @@ from nltk.tokenize import sent_tokenize
 import re
 from selenium import webdriver
 import os
+import seaborn as sns
 
 import ast
 import pybase64
@@ -145,6 +147,26 @@ def get_database(start,end):
     database = pd.DataFrame(database)
     return database
 
+def coocc_matrix(data):
+    tags = ['Perception','Fact','Policy','Occasional','General','Local','City-wide','Slightly important','Very Important','Extreamly important']
+    tags1 = ['obj', 'scope', 'Imp']
+    coocc=dict()
+    for sent in data:
+        for t in sent['tag']:
+            for tt in tags:
+                coocc.update({f'{t}':{}})
+    for co in coocc:
+        for t in tags:
+            coocc[f'{co}'].update({f'{t}':0})
+    for co in coocc:
+        for sent in data:
+            if co in sent['tag']:
+                for t in tags:
+                    for tt in tags1:
+                        if t in sent[f'{tt}']:
+                            coocc[f'{co}'].update({f'{t}':coocc[f'{co}'][f'{t}']+1})
+    return pd.DataFrame(coocc)
+
 ##### FUNCTIONS FOR PAGES #######
 def Result():
     st.subheader(data['title'])
@@ -166,7 +188,14 @@ def Result():
                 
         result = dict((x,result.count(x)/l) for x in set(result))
         st.bar_chart(pd.Series(result))
-
+    try:
+        coocc = coocc_matrix(ast.literal_eval(data['sents']))
+        sns.set(font_scale=0.7)
+        sns.heatmap(coocc.T,square=True,cmap='Blues',annot=True,annot_kws={"size":7},robust=True,cbar=False)
+        st.pyplot()
+        
+    except:
+        pass
 
 def Guid():
     st.header('Cities, Urbanization and Human Needs Satisfaction')  
@@ -204,6 +233,7 @@ def Annotation():
     st.markdown(data['city'])
     # url
     st.write(data['url'])
+    components.iframe(data['url'],scrolling=True,height=300)
     # Summary
     st.subheader("Summary")
     st.write(data['summary'])
