@@ -156,7 +156,7 @@ def Result():
         l = len (ast.literal_eval(data['sents']))
         st.subheader(res[1])
         for sent in ast.literal_eval(data['sents']):
-            imp_list = ['spam','Not important','Slightly important','Important','Very Important','Extreamly important']
+            imp_list = ['spam','Slightly important','Very Important','Extreamly important']
             try:
                 imp = imp_list.index(sent['Imp'][0])
             except:
@@ -249,7 +249,7 @@ def Annotation():
             obj_out[f'{i}'] = st.multiselect('Objectivity',['None','Perception','Fact','Policy'], key=f'{i}-obj',default=sent['obj'])
             scope_out[f'{i}'] = st.multiselect('Scope',['None','Occasional','General','Local','City-wide'], key=f'{i}-sco',default=sent['scope'])
             veen_out[f'{i}'] = st.multiselect('Veenhoven Quadrant',['None','Presence of Satisfiers','Capabilities','Externalities','Subjective Satisfaction'],key=f'{i}-vee',default=sent['veen'])
-            Imp_out[f'{i}'] = st.multiselect('Importance',['Not important','Slightly important','Important','Very Important','Extreamly important','Spam'],key=f'{i}-Imp',default=sent['Imp'])
+            Imp_out[f'{i}'] = st.multiselect('Importance',['Slightly important','Very Important','Extreamly important','Spam'],key=f'{i}-Imp',default=sent['Imp'])
             com_out[f'{i}'] = st.text_area('Comments',value=str(sent['comment']), key=i)
             if st.button('Update',i):
                 sent['tag'] = tag_out[f'{i}']
