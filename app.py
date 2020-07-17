@@ -19,7 +19,7 @@ from sqlalchemy.sql import select, update
 from sqlalchemy import MetaData, Table,Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine = create_engine("postgres://cxeoucyjzjxfgt:0b3134fdc3000379a8a52c1b500eef27fc3dfa8f50cd370f69c102f61a8978af@ec2-34-239-241-25.compute-1.amazonaws.com:5432/dfeo62j1nite2e", echo = True)
+engine = create_engine("postgres://kcxahjdiqiplht:5185547847f6443735fa4d1e9023d729cef3960492920819d276af7f73c8a6b2@ec2-35-174-88-65.compute-1.amazonaws.com:5432/dd99dapkb4d7l2", echo = True)
 db = scoped_session(sessionmaker(bind=engine))
 
 #create or define the database table
