@@ -61,7 +61,7 @@ def update_data(x,upd):
     conn.close()
 
 def import_data():
-    df_1 = pd.read_csv('googlenews_top_monthly_2019_45cities_text_8.csv', converters={'sents':eval,'percent':eval,'doc_top':eval})
+    df_1 = pd.read_csv('googlenews_top_monthly_2019_45cities_text_9.csv', converters={'sents':eval,'percent':eval,'doc_top':eval})
     df_1 = df_1.to_dict(orient='record')
     st.write(len(df_1))
     for row in df_1:
@@ -149,7 +149,7 @@ def get_database(start,end):
 
 def coocc_matrix(data):
     tags = ['Perception','Fact','Policy','Occasional','General','Local','City-wide']
-    tags1 = ['obj', 'scope', 'Imp']
+    tags1 = ['obj', 'space', 'time', 'Imp']
     imp_list=['Slightly important','Very Important','Extreamly important']
     coocc=dict()
     for sent in data:
@@ -180,7 +180,7 @@ def Result():
     st.markdown(data['city'])
     st.write(data['url'])
     doc_class_side()
-    for res in [('tag','Sentiment'),('obj','Objectivity'),('scope','Scope'),('veen','Veenhoven Quadrant')]:
+    for res in [('tag','Sentiment'),('obj','Objectivity'),('space','Scope | Space'),('time','Scope | Time')]:
         result = []
         l = len (ast.literal_eval(data['sents']))
         st.subheader(res[1])
@@ -263,8 +263,8 @@ def Annotation():
 
     tag_out={}
     obj_out={}
-    scope_out={}
-    veen_out={}
+    space_out={}
+    time_out={}
     Imp_out={}
     com_out={}
     sent_out={}
@@ -274,7 +274,7 @@ def Annotation():
         pred = sent['pred']
         st.markdown(f'*<span style="color:grey">Current Model prediction: </span> <span style="color:#f63366;font-size:16px;">{clean_t(pred)}</span>*', unsafe_allow_html=True)
         st.markdown("*<span style='color:grey'>New Tags: </span>*",unsafe_allow_html=True)
-        for aspct in ['tag','obj','scope','veen','Imp']:
+        for aspct in ['tag','obj','space','time','Imp']:
             if sent[aspct] != []:
                 st.markdown(f"{text_box(clean_t(sent[aspct]))}", unsafe_allow_html=True)
         st.markdown(f"*<span style='color:grey'>Comments: </span><span style='font-size:14px;'>{sent['comment']}</span>*", unsafe_allow_html=True)
@@ -284,16 +284,16 @@ def Annotation():
             default = sent['tag']
             tag_out[f'{i}'] = st.multiselect('Sentiments',tags,key=i,default= default)
             obj_out[f'{i}'] = st.multiselect('Objectivity',['None','Perception','Fact','Policy'], key=f'{i}-obj',default=sent['obj'])
-            scope_out[f'{i}'] = st.multiselect('Scope',['None','Occasional','General','Local','City-wide'], key=f'{i}-sco',default=sent['scope'])
-            veen_out[f'{i}'] = st.multiselect('Veenhoven Quadrant',['None','Presence of Satisfiers','Capabilities','Externalities','Subjective Satisfaction'],key=f'{i}-vee',default=sent['veen'])
+            space_out[f'{i}'] = st.multiselect('Scope | Space',['Local','City-wide'], key=f'{i}-spa',default=sent['space'])
+            time_out[f'{i}'] = st.multiselect('Scope | time',['Occasional','General',],key=f'{i}-tim',default=sent['time'])
             Imp_out[f'{i}'] = st.multiselect('Importance',['Slightly important','Very Important','Extreamly important','Spam'],key=f'{i}-Imp',default=sent['Imp'])
             com_out[f'{i}'] = st.text_area('Comments',value=str(sent['comment']), key=i)
             if st.button('Update',i):
                 sent['tag'] = tag_out[f'{i}']
                 sent['comment']= com_out[f'{i}']
                 sent['obj']= obj_out[f'{i}']
-                sent['scope']= scope_out[f'{i}']
-                sent['veen']= veen_out[f'{i}']
+                sent['space']= space_out[f'{i}']
+                sent['time']= time_out[f'{i}']
                 sent['Imp']= Imp_out[f'{i}']
                 update_data(x,str(text_sents))   
             st.markdown('---')
@@ -304,19 +304,10 @@ def Annotation():
                 update_data(x,str(text_sents))
         st.markdown('---')  
                 
-
-
-#names=['ID','city','month','url','text','title','summary','keywords','sents','percent']
-
-#st.markdown("Ali Sobhani is a <span style='border:1px #f63366 solid;padding:2px;border-radius:3px;'>nice</span> PhD Candidate",unsafe_allow_html=True)
-#st.markdown("Ali Sobhani is a <span style='padding:2px;border-radius:3px;background-color:#f63366;color:white;'>nice</span> PhD Candidate",unsafe_allow_html=True)
-
-#st.markdown(text_box("Ali Aghaye gol"),unsafe_allow_html=True)
-
 #### LOAD DATA ####
 ########### import data from csv to database
-#if st.button('db','db'):
-#    import_data()
+if st.button('db','db'):
+    import_data()
 ##########
 
 
