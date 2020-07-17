@@ -306,8 +306,8 @@ def Annotation():
                 
 #### LOAD DATA ####
 ########### import data from csv to database
-if st.button('db','db'):
-    import_data()
+#if st.button('db','db'):
+#    import_data()
 ##########
 
 
