@@ -300,6 +300,10 @@ def Annotation():
         if st.checkbox('NER',False,f'{x}{i}-ner'):
             sent_out[f'{i}']=st.text_area('ct: City, cz: Citizens, org: Organizations, st: State',value = sent['sent'],key= f"{i}-ner")
             if st.button('Update',f"{i}-ner"):
+                if '%' in sent_out[f'{i}']:
+                    split = sent_out[f'{i}'].split('%')
+                    sent_out[f'{i}']=split[0]
+                    text_sents.insert(i+1,{'sent': f'{split[1]}', 'pred': [], 'tag': [], 'comment': '', 'obj': [], 'space': [], 'time': [], 'Imp': []})
                 sent['sent']=sent_out[f'{i}']
                 update_data(x,str(text_sents))
         st.markdown('---')  
